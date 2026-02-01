@@ -100,19 +100,15 @@ export const QueryRoot: React.FC<Props> = ({ query, warnings }) => {
       return;
     }
 
-    const markdown = buildRenderedTasksMarkdown(result.tasks, query);
+    const template = settings.appendRenderedTasksTemplate?.trim().length
+      ? settings.appendRenderedTasksTemplate
+      : "{{task}}";
+    const markdown = buildRenderedTasksMarkdown(result.tasks, query, template);
     if (markdown.trim().length === 0) {
       new Notice(i18n.noTasksNotice);
       return;
     }
-
-    const template = settings.appendRenderedTasksTemplate?.trim().length
-      ? settings.appendRenderedTasksTemplate
-      : "{{tasks}}";
-    const templatedMarkdown = applyAppendTemplate(template, markdown);
-    const markdownWithNewline = templatedMarkdown.endsWith("\n")
-      ? templatedMarkdown
-      : `${templatedMarkdown}\n`;
+    const markdownWithNewline = markdown.endsWith("\n") ? markdown : `${markdown}\n`;
 
     try {
       const existing = await plugin.app.vault.read(file);
@@ -212,29 +208,38 @@ const getSourcePath = (
   return activeFile?.path;
 };
 
-const buildRenderedTasksMarkdown = (tasks: Task[], query: TaskQuery): string => {
+const buildRenderedTasksMarkdown = (
+  tasks: Task[],
+  query: TaskQuery,
+  taskTemplate: string,
+): string => {
   if (query.groupBy !== undefined) {
     const groups = groupBy(tasks, query.groupBy);
     return groups
       .map((group) => {
-        const list = buildListMarkdown(group.tasks, query);
+        const list = buildListMarkdown(group.tasks, query, taskTemplate);
         return [formatGroupHeader(group.header), list].filter(Boolean).join("\n");
       })
       .filter((block) => block.trim().length > 0)
       .join("\n\n");
   }
 
-  return buildListMarkdown(tasks, query);
+  return buildListMarkdown(tasks, query, taskTemplate);
 };
 
 const formatGroupHeader = (header: string): string => {
   return `### ${header}`;
 };
 
-const buildListMarkdown = (tasks: Task[], query: TaskQuery): string => {
+const buildListMarkdown = (
+  tasks: Task[],
+  query: TaskQuery,
+  taskTemplate: string,
+): string => {
   const trees = getTaskTree(tasks, query.sorting);
   const lines: string[] = [];
-  appendTreeLines(lines, trees, 0);
+  const now = new Date();
+  appendTreeLines(lines, trees, 0, taskTemplate, now);
   return lines.join("\n");
 };
 
@@ -244,16 +249,34 @@ const getTaskTree = (tasks: Task[], sorting: TaskQuery["sorting"]): TaskTree[] =
   return buildTaskTree(copy);
 };
 
-const appendTreeLines = (lines: string[], trees: TaskTree[], depth: number) => {
+const appendTreeLines = (
+  lines: string[],
+  trees: TaskTree[],
+  depth: number,
+  taskTemplate: string,
+  now: Date,
+) => {
   for (const tree of trees) {
     const indent = "  ".repeat(depth);
-    const content = sanitizeTaskContent(tree.content);
-    lines.push(`${indent}- [ ] ${content}`);
+    const rendered = applyTaskTemplate(taskTemplate, tree, now);
+    const renderedLines = rendered.split("\n").map((line) => `${indent}${line}`);
+    lines.push(...renderedLines);
 
     if (tree.children.length > 0) {
-      appendTreeLines(lines, tree.children, depth + 1);
+      appendTreeLines(lines, tree.children, depth + 1, taskTemplate, now);
     }
   }
+};
+
+const buildTaskText = (task: TaskTree): string => {
+  const content = sanitizeTaskContent(task.content).trim();
+  const description = sanitizeTaskDescription(task.description);
+
+  if (description.length === 0) {
+    return content;
+  }
+
+  return `${content} - ${description}`;
 };
 
 const sanitizeTaskContent = (content: string): string => {
@@ -264,25 +287,108 @@ const sanitizeTaskContent = (content: string): string => {
   return content;
 };
 
-const applyAppendTemplate = (template: string, tasksMarkdown: string): string => {
-  const now = new Date();
-  const replacements: Record<string, string> = {
-    tasks: tasksMarkdown,
-    date: now.toLocaleDateString(),
-    time: now.toLocaleTimeString(),
-    datetime: now.toLocaleString(),
-  };
+const sanitizeTaskDescription = (description: string): string => {
+  return description.replace(/\s+/g, " ").trim();
+};
 
-  const hasTasksPlaceholder = /{{\s*tasks\s*}}/i.test(template);
+const applyTaskTemplate = (template: string, task: TaskTree, now: Date): string => {
+  const taskText = buildTaskText(task);
+  const hasTaskPlaceholder = /{{\s*task\s*}}/i.test(template);
 
-  const rendered = template.replace(/{{\s*(tasks|date|time|datetime)\s*}}/gi, (match) => {
-    const key = match.replace(/[{}\s]/g, "").toLowerCase();
-    return replacements[key] ?? match;
-  });
+  const rendered = template.replace(
+    /{{\s*(task|content|description|project|section|labels|priority|id|due|deadline|date|time|datetime)(?::([^}]+))?\s*}}/gi,
+    (_match, key: string, format?: string) => {
+      const lowerKey = key.toLowerCase();
+      switch (lowerKey) {
+        case "task":
+          return taskText;
+        case "content":
+          return sanitizeTaskContent(task.content).trim();
+        case "description":
+          return sanitizeTaskDescription(task.description);
+        case "project":
+          return task.project?.name ?? "";
+        case "section":
+          return task.section?.name ?? "";
+        case "labels":
+          return task.labels.map((label) => label.name).join(", ");
+        case "priority":
+          return task.priority.toString();
+        case "id":
+          return task.id;
+        case "due":
+          return formatTaskDateToken(task.due?.date, format);
+        case "deadline":
+          return formatTaskDateToken(task.deadline?.date, format);
+        case "date":
+        case "time":
+        case "datetime":
+          return formatDateToken(now, lowerKey as "date" | "time" | "datetime", format);
+        default:
+          return "";
+      }
+    },
+  );
 
-  if (hasTasksPlaceholder) {
+  if (hasTaskPlaceholder) {
     return rendered;
   }
 
-  return `${rendered}\n${tasksMarkdown}`;
+  const trimmed = rendered.trim();
+  if (trimmed.length === 0) {
+    return taskText;
+  }
+
+  return `${rendered} ${taskText}`;
+};
+
+const formatDateToken = (
+  now: Date,
+  type: "date" | "time" | "datetime",
+  format?: string,
+): string => {
+  if (!format || format.trim().length === 0) {
+    switch (type) {
+      case "date":
+        return now.toLocaleDateString();
+      case "time":
+        return now.toLocaleTimeString();
+      case "datetime":
+        return now.toLocaleString();
+    }
+  }
+
+  return formatDateWithPattern(now, format.trim());
+};
+
+const formatTaskDateToken = (value: string | undefined, format?: string): string => {
+  if (!value || value.trim().length === 0) {
+    return "";
+  }
+
+  if (!format || format.trim().length === 0) {
+    return value;
+  }
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+
+  return formatDateWithPattern(parsed, format.trim());
+};
+
+const formatDateWithPattern = (date: Date, pattern: string): string => {
+  const pad = (value: number, length = 2) => value.toString().padStart(length, "0");
+
+  const replacements: Record<string, string> = {
+    YYYY: date.getFullYear().toString(),
+    MM: pad(date.getMonth() + 1),
+    DD: pad(date.getDate()),
+    HH: pad(date.getHours()),
+    mm: pad(date.getMinutes()),
+    ss: pad(date.getSeconds()),
+  };
+
+  return pattern.replace(/YYYY|MM|DD|HH|mm|ss/g, (token) => replacements[token] ?? token);
 };

@@ -47,10 +47,10 @@ export const nl: DeepPartial<Translations> = {
         description: "Of weergegeven labels een pictogram moeten bevatten",
       },
       appendRenderedTasksTemplate: {
-        label: "Sjabloon voor toegevoegde taken",
+        label: "Sjabloon voor taak-invoeging",
         description:
-          "Sjabloon voor het toevoegen van weergegeven taken. Gebruik {{tasks}}, {{date}}, {{time}}, {{datetime}}.",
-        placeholder: "### Taken ({datetime})\n{{tasks}}",
+          "Sjabloon per taak bij het toevoegen. Gebruik {{task}}, {{content}}, {{description}}, {{project}}, {{section}}, {{labels}}, {{priority}}, {{due}}, {{deadline}}, {{date}}, {{time}}, {{datetime}} of {{date:YYYY-MM-DD}}.",
+        placeholder: "{{date:YYYY-MM-DD}} {{task}}",
       },
     },
     taskCreation: {

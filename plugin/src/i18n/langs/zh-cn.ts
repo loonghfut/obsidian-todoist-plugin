@@ -48,8 +48,9 @@ export const zhCn: DeepPartial<Translations> = {
       },
       appendRenderedTasksTemplate: {
         label: "追加渲染任务模板",
-        description: "追加渲染任务时使用的模板。支持 {{tasks}}、{{date}}、{{time}}、{{datetime}}。",
-        placeholder: "### 任务（{{datetime}}）\n{{tasks}}",
+        description:
+          "按任务逐条追加时使用的模板。支持 {{task}}、{{content}}、{{description}}、{{project}}、{{section}}、{{labels}}、{{priority}}、{{due}}、{{deadline}}、{{date}}、{{time}}、{{datetime}} 或 {{date:YYYY-MM-DD}}。",
+        placeholder: "{{date:YYYY-MM-DD}} {{task}}",
       },
     },
     taskCreation: {

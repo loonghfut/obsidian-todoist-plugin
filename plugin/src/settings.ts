@@ -27,7 +27,7 @@ const defaultSettings: Settings = {
   renderDateIcon: true,
   renderProjectIcon: true,
   renderLabelsIcon: true,
-  appendRenderedTasksTemplate: "{{tasks}}",
+  appendRenderedTasksTemplate: "{{task}}",
 
   shouldWrapLinksInParens: false,
   addTaskButtonAddsPageLink: "content",

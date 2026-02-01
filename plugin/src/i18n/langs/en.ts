@@ -49,10 +49,10 @@ export const en: Translations = {
         description: "Whether rendered labels should include an icon",
       },
       appendRenderedTasksTemplate: {
-        label: "Append rendered tasks template",
+        label: "Task append template",
         description:
-          "Template used when appending rendered tasks. Use {{tasks}}, {{date}}, {{time}}, {{datetime}}.",
-        placeholder: "### Tasks ({datetime})\n{{tasks}}",
+          "Template used per task when appending. Use {{task}}, {{content}}, {{description}}, {{project}}, {{section}}, {{labels}}, {{priority}}, {{due}}, {{deadline}}, {{date}}, {{time}}, {{datetime}} or {{date:YYYY-MM-DD}}.",
+        placeholder: "{{date:YYYY-MM-DD}} {{task}}",
       },
     },
     taskCreation: {
