@@ -149,6 +149,16 @@ const SettingsRoot: React.FC<Props> = ({ plugin }) => {
       >
         <Setting.ToggleControl {...toggleProps("renderLabelsIcon")} />
       </Setting.Root>
+      <Setting.Root
+        name={i18n.rendering.appendRenderedTasksTemplate.label}
+        description={i18n.rendering.appendRenderedTasksTemplate.description}
+      >
+        <Setting.TextAreaControl
+          value={settings.appendRenderedTasksTemplate}
+          placeholder={i18n.rendering.appendRenderedTasksTemplate.placeholder}
+          onChange={mkOptionUpdate("appendRenderedTasksTemplate")}
+        />
+      </Setting.Root>
 
       <h2>{i18n.taskCreation.header}</h2>
       <Setting.Root

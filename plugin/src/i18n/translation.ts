@@ -46,6 +46,11 @@ export type Translations = {
         label: string;
         description: string;
       };
+      appendRenderedTasksTemplate: {
+        label: string;
+        description: string;
+        placeholder: string;
+      };
     };
     taskCreation: {
       header: string;

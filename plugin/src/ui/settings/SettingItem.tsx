@@ -118,9 +118,42 @@ const DropdownControl = <T extends DropdownOptionValue>({
   );
 };
 
+type TextAreaControlProps = {
+  value: string;
+  placeholder?: string;
+  rows?: number;
+  onChange: (val: string) => Promise<void>;
+};
+
+const TextAreaControl: React.FC<TextAreaControlProps> = ({
+  value,
+  placeholder,
+  rows = 4,
+  onChange,
+}) => {
+  const [text, setText] = useState(value);
+
+  const handleChange = async (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const next = ev.target.value;
+    setText(next);
+    await onChange(next);
+  };
+
+  return (
+    <textarea
+      className="setting-textarea"
+      value={text}
+      placeholder={placeholder}
+      rows={rows}
+      onChange={handleChange}
+    />
+  );
+};
+
 export const Setting = {
   Root,
   ButtonControl,
   ToggleControl,
   DropdownControl,
+  TextAreaControl,
 };

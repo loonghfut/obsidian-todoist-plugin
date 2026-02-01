@@ -24,6 +24,12 @@
       font-size: var(--font-small);
     }
   }
+
+  .setting-textarea {
+    width: 320px;
+    min-height: 96px;
+    resize: vertical;
+  }
 }
 
 .setting-item-deprecation-notice {

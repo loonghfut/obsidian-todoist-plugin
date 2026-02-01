@@ -27,6 +27,7 @@ const defaultSettings: Settings = {
   renderDateIcon: true,
   renderProjectIcon: true,
   renderLabelsIcon: true,
+  appendRenderedTasksTemplate: "{{tasks}}",
 
   shouldWrapLinksInParens: false,
   addTaskButtonAddsPageLink: "content",
@@ -56,6 +57,8 @@ export type Settings = {
   renderProjectIcon: boolean;
 
   renderLabelsIcon: boolean;
+
+  appendRenderedTasksTemplate: string;
 
   shouldWrapLinksInParens: boolean;
   addTaskButtonAddsPageLink: AddPageLinkSetting;

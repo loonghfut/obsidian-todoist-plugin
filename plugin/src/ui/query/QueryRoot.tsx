@@ -106,7 +106,13 @@ export const QueryRoot: React.FC<Props> = ({ query, warnings }) => {
       return;
     }
 
-    const markdownWithNewline = markdown.endsWith("\n") ? markdown : `${markdown}\n`;
+    const template = settings.appendRenderedTasksTemplate?.trim().length
+      ? settings.appendRenderedTasksTemplate
+      : "{{tasks}}";
+    const templatedMarkdown = applyAppendTemplate(template, markdown);
+    const markdownWithNewline = templatedMarkdown.endsWith("\n")
+      ? templatedMarkdown
+      : `${templatedMarkdown}\n`;
 
     try {
       const existing = await plugin.app.vault.read(file);
@@ -117,7 +123,7 @@ export const QueryRoot: React.FC<Props> = ({ query, warnings }) => {
       console.error("Failed to append rendered tasks", error);
       new Notice(i18n.failedNotice);
     }
-  }, [plugin, query, renderChild, result]);
+  }, [plugin, query, renderChild, result, settings.appendRenderedTasksTemplate]);
 
   useEffect(() => {
     const interval = getAutorefreshInterval(query, settings);
@@ -256,4 +262,27 @@ const sanitizeTaskContent = (content: string): string => {
   }
 
   return content;
+};
+
+const applyAppendTemplate = (template: string, tasksMarkdown: string): string => {
+  const now = new Date();
+  const replacements: Record<string, string> = {
+    tasks: tasksMarkdown,
+    date: now.toLocaleDateString(),
+    time: now.toLocaleTimeString(),
+    datetime: now.toLocaleString(),
+  };
+
+  const hasTasksPlaceholder = /{{\s*tasks\s*}}/i.test(template);
+
+  const rendered = template.replace(/{{\s*(tasks|date|time|datetime)\s*}}/gi, (match) => {
+    const key = match.replace(/[{}\s]/g, "").toLowerCase();
+    return replacements[key] ?? match;
+  });
+
+  if (hasTasksPlaceholder) {
+    return rendered;
+  }
+
+  return `${rendered}\n${tasksMarkdown}`;
 };

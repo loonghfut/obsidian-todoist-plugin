@@ -46,6 +46,12 @@ export const nl: DeepPartial<Translations> = {
         label: "Labelpictogram inschakelen",
         description: "Of weergegeven labels een pictogram moeten bevatten",
       },
+      appendRenderedTasksTemplate: {
+        label: "Sjabloon voor toegevoegde taken",
+        description:
+          "Sjabloon voor het toevoegen van weergegeven taken. Gebruik {{tasks}}, {{date}}, {{time}}, {{datetime}}.",
+        placeholder: "### Taken ({datetime})\n{{tasks}}",
+      },
     },
     taskCreation: {
       header: "Aanmaken van een taak",
