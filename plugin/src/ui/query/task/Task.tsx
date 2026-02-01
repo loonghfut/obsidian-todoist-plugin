@@ -8,8 +8,9 @@ import type { TaskTree } from "@/data/transformations/relationships";
 import { t } from "@/i18n";
 import { useSettingsStore } from "@/settings";
 import { Markdown } from "@/ui/components/markdown";
-import { PluginContext, QueryContext } from "@/ui/context";
+import { PluginContext, QueryContext, RenderChildContext } from "@/ui/context";
 import { showTaskContext } from "@/ui/query/task/contextMenu";
+import { appendTaskToFile } from "@/ui/query/task/append";
 import { TaskList } from "@/ui/query/task/TaskList";
 import { TaskMetadata } from "@/ui/query/task/TaskMetadata";
 
@@ -22,6 +23,7 @@ type Props = {
 export const Task: React.FC<Props> = ({ tree }) => {
   const plugin = PluginContext.use();
   const query = QueryContext.use();
+  const renderChild = RenderChildContext.use();
   const settings = useSettingsStore();
 
   const onContextMenu = (ev: MouseEvent) => {
@@ -39,6 +41,16 @@ export const Task: React.FC<Props> = ({ tree }) => {
   const onClickTask = async () => {
     try {
       await plugin.services.todoist.actions.closeTask(tree.id);
+      if (settings.appendCompletedTasksOnClose) {
+        const template = settings.appendRenderedTasksTemplate?.trim().length
+          ? settings.appendRenderedTasksTemplate
+          : "{{task}}";
+        try {
+          await appendTaskToFile(plugin, renderChild, tree, template);
+        } catch (error: unknown) {
+          console.error("Failed to append completed task", error);
+        }
+      }
     } catch (error: unknown) {
       console.error("Failed to close task", error);
       new Notice(t().query.failedCloseMessage, noticeDurationMs);

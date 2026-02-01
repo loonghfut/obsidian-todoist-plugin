@@ -266,6 +266,12 @@ const SettingsRoot: React.FC<Props> = ({ plugin }) => {
           }}
         />
       </Setting.Root>
+      <Setting.Root
+        name={i18n.taskCreation.appendCompletedTasksOnClose.label}
+        description={i18n.taskCreation.appendCompletedTasksOnClose.description}
+      >
+        <Setting.ToggleControl {...toggleProps("appendCompletedTasksOnClose")} />
+      </Setting.Root>
 
       <h2>{i18n.advanced.header}</h2>
       <Setting.Root

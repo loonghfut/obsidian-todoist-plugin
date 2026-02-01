@@ -105,6 +105,11 @@ export const en: Translations = {
           addCopyWeb: "Add task and copy link (web)",
         },
       },
+      appendCompletedTasksOnClose: {
+        label: "Append completed task on finish",
+        description:
+          "When enabled, completed tasks will be appended to the current file using the task template",
+      },
     },
     advanced: {
       header: "Advanced",

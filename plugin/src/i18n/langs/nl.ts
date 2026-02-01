@@ -70,6 +70,11 @@ export const nl: DeepPartial<Translations> = {
           content: "Taaknaam",
         },
       },
+      appendCompletedTasksOnClose: {
+        label: "Voltooide taak toevoegen",
+        description:
+          "Wanneer ingeschakeld, worden voltooide taken toegevoegd aan het huidige bestand met het taaksjabloon",
+      },
     },
     advanced: {
       header: "Geavanceerd",

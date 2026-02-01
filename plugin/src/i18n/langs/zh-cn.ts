@@ -101,6 +101,10 @@ export const zhCn: DeepPartial<Translations> = {
           addCopyWeb: "添加任务并复制链接（Web）",
         },
       },
+      appendCompletedTasksOnClose: {
+        label: "完成任务后自动插入",
+        description: "启用后，完成任务时会使用模板追加到当前文件",
+      },
     },
     advanced: {
       header: "高级",

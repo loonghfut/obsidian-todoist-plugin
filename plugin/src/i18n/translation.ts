@@ -100,6 +100,10 @@ export type Translations = {
           addCopyWeb: string;
         };
       };
+      appendCompletedTasksOnClose: {
+        label: string;
+        description: string;
+      };
     };
     advanced: {
       header: string;
