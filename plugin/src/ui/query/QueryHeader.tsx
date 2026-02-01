@@ -30,6 +30,7 @@ type Props = {
   isFetching: boolean;
   refresh: () => Promise<void>;
   refreshedTimestamp: Date | undefined;
+  appendRenderedTasks: () => Promise<void> | void;
 };
 
 export const QueryHeader: React.FC<Props> = ({
@@ -37,12 +38,14 @@ export const QueryHeader: React.FC<Props> = ({
   isFetching,
   refresh,
   refreshedTimestamp,
+  appendRenderedTasks,
 }) => {
   const plugin = PluginContext.use();
   const { click: editBlock } = MarkdownEditButtonContext.use()();
 
   const settings = useSettingsStore();
   const i18n = t().query.header.refreshTooltip;
+  const appendI18n = t().query.header.appendRenderedTasks;
 
   const refreshedAtDisplay =
     refreshedTimestamp !== undefined
@@ -57,6 +60,12 @@ export const QueryHeader: React.FC<Props> = ({
           className="add-task"
           iconId="plus"
           action={() => fireCommand(getAddTaskCommandId(settings), plugin)}
+        />
+        <HeaderButton
+          className="append-rendered-tasks"
+          iconId="list-plus"
+          action={appendRenderedTasks}
+          tooltip={appendI18n.tooltip}
         />
         <HeaderButton
           className={classNames("refresh-query", {

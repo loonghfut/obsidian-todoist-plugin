@@ -34,9 +34,9 @@ export const Popover: React.FC<PropsWithChildren<Props>> = ({
 
 type PlacementDetails = Pick<PopoverProps, "placement" | "shouldFlip">;
 
-export const getPlacementDetails = (
-  defaultPlacement: PlacementDetails["placement"] = undefined,
-): PlacementDetails => {
+export const getPlacementDetails: (
+  defaultPlacement?: PlacementDetails["placement"],
+) => PlacementDetails = (defaultPlacement = undefined) => {
   if (Platform.isMobile) {
     return {
       placement: "top left",

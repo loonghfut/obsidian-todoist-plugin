@@ -248,6 +248,13 @@ export const en: Translations = {
         lastRefreshed: (datetime: string) => `Last refreshed at: ${datetime}`,
         notRefreshed: "Not queried yet",
       },
+      appendRenderedTasks: {
+        tooltip: "Append rendered tasks to the end of this file",
+        successNotice: "Rendered tasks appended to the current file",
+        failedNotice: "Failed to append rendered tasks",
+        noTasksNotice: "No rendered tasks to append",
+        noFileNotice: "Unable to determine the current file",
+      },
     },
     warning: {
       header: "Warnings",

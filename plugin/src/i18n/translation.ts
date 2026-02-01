@@ -224,6 +224,13 @@ export type Translations = {
         lastRefreshed: (datetime: string) => string;
         notRefreshed: string;
       };
+      appendRenderedTasks: {
+        tooltip: string;
+        successNotice: string;
+        failedNotice: string;
+        noTasksNotice: string;
+        noFileNotice: string;
+      };
     };
     warning: {
       header: string;

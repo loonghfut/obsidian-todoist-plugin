@@ -171,6 +171,13 @@ export const nl: DeepPartial<Translations> = {
         lastRefreshed: (datetime: string) => `Laatst ververst op: ${datetime}`,
         notRefreshed: "Nog niet opgehaald",
       },
+      appendRenderedTasks: {
+        tooltip: "Voeg weergegeven taken toe aan het einde van dit bestand",
+        successNotice: "Weergegeven taken toegevoegd aan het huidige bestand",
+        failedNotice: "Kan weergegeven taken niet toevoegen",
+        noTasksNotice: "Geen weergegeven taken om toe te voegen",
+        noFileNotice: "Kan het huidige bestand niet bepalen",
+      },
     },
     warning: {
       header: "Waarschuwingen",
