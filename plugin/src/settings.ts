@@ -31,12 +31,16 @@ const defaultSettings: Settings = {
   renderProjectIcon: true,
   renderLabelsIcon: true,
   appendRenderedTasksTemplate: "{{task}}",
+  appendCompletedTasksTemplate: "{{task}}",
   appendCompletedTasksOnClose: false,
+  appendCompletedTasksToDailyNote: false,
+  dailyNotePathTemplate: "",
 
   shouldWrapLinksInParens: false,
   addTaskButtonAddsPageLink: "content",
 
   taskCreationDefaultDueDate: "none",
+  autoApplyRecognizedDates: true,
 
   taskCreationDefaultProject: null,
 
@@ -65,12 +69,20 @@ export type Settings = {
 
   appendRenderedTasksTemplate: string;
 
+  appendCompletedTasksTemplate: string;
+
   appendCompletedTasksOnClose: boolean;
+
+  appendCompletedTasksToDailyNote: boolean;
+
+  dailyNotePathTemplate: string;
 
   shouldWrapLinksInParens: boolean;
   addTaskButtonAddsPageLink: AddPageLinkSetting;
 
   taskCreationDefaultDueDate: DueDateDefaultSetting;
+
+  autoApplyRecognizedDates: boolean;
 
   taskCreationDefaultProject: ProjectDefaultSetting;
 

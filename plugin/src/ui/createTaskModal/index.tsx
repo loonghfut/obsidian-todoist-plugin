@@ -1,7 +1,7 @@
-import { toCalendarDateTime, toZoned } from "@internationalized/date";
+import { CalendarDate, Time, fromDate, toCalendarDateTime, toZoned } from "@internationalized/date";
 import { Notice, type TFile } from "obsidian";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Label, Menu, MenuItem, MenuTrigger } from "react-aria-components";
 
 import { t } from "@/i18n";
@@ -26,6 +26,7 @@ import { Popover } from "./Popover";
 import { PrioritySelector } from "./PrioritySelector";
 import { type ProjectIdentifier, ProjectSelector } from "./ProjectSelector";
 import { TaskContentInput } from "./TaskContentInput";
+import { type RecognizedDate, parseNaturalLanguageDates } from "./naturalLanguageDate";
 import { buildClipboardMarkdown, buildTaskContent, type FileInfo } from "./taskContent";
 import "./styles.scss";
 
@@ -184,6 +185,9 @@ const CreateTaskModalContent: React.FC<CreateTaskProps> = ({
   const [dueDate, setDueDate] = useState<DueDate | undefined>(() =>
     calculateDefaultDueDate(settings.taskCreationDefaultDueDate),
   );
+  const [dueDateSource, setDueDateSource] = useState<"default" | "manual" | "nlp">(
+    "default",
+  );
   const [priority, setPriority] = useState<Priority>(1);
   const [labels, setLabels] = useState<TodoistLabel[]>(() =>
     calculateDefaultLabels(plugin, settings.taskCreationDefaultLabels),
@@ -200,6 +204,37 @@ const CreateTaskModalContent: React.FC<CreateTaskProps> = ({
   const isSubmitButtonDisabled = content === "" && options.appendLinkTo !== "content";
 
   const i18n = t().createTaskModal;
+
+  const recognizedDates = useMemo(() => {
+    if (!settings.autoApplyRecognizedDates) {
+      return [];
+    }
+
+    return parseNaturalLanguageDates(content);
+  }, [content, settings.autoApplyRecognizedDates]);
+
+  useEffect(() => {
+    if (!settings.autoApplyRecognizedDates) {
+      return;
+    }
+
+    if (dueDateSource === "manual") {
+      return;
+    }
+
+    if (recognizedDates.length === 0) {
+      if (dueDateSource === "nlp") {
+        setDueDate(undefined);
+      }
+      return;
+    }
+
+    const parsedDueDate = toDueDate(recognizedDates[0]);
+    if (parsedDueDate) {
+      setDueDate(parsedDueDate);
+      setDueDateSource("nlp");
+    }
+  }, [recognizedDates, dueDateSource, settings.autoApplyRecognizedDates]);
 
   const createTask = async (action: AddTaskAction) => {
     if (isSubmitButtonDisabled) {
@@ -237,7 +272,10 @@ const CreateTaskModalContent: React.FC<CreateTaskProps> = ({
     }
 
     try {
-      const taskContent = buildTaskContent(content, toFileInfo(fileContext), {
+      const normalizedContent = settings.autoApplyRecognizedDates
+        ? stripLeadingRecognizedDate(content, recognizedDates)
+        : content;
+      const taskContent = buildTaskContent(normalizedContent, toFileInfo(fileContext), {
         appendLink: options.appendLinkTo === "content",
         wrapInParens: settings.shouldWrapLinksInParens,
       });
@@ -251,7 +289,7 @@ const CreateTaskModalContent: React.FC<CreateTaskProps> = ({
         };
 
         const markdownLink = buildClipboardMarkdown(
-          content,
+          normalizedContent,
           taskRef,
           {
             appendLink: options.appendLinkTo === "content",
@@ -302,6 +340,40 @@ const CreateTaskModalContent: React.FC<CreateTaskProps> = ({
         autofocus={true}
         onEnterKey={() => createTask(currentAction)}
       />
+      {recognizedDates.length > 0 && (
+        <div className="nlp-date-detections">
+          <div className="nlp-date-header">{i18n.naturalLanguageDates.header}</div>
+          <ul className="nlp-date-list">
+            {recognizedDates.map((match) => (
+              <li
+                key={`${match.index}-${match.text}`}
+                className="nlp-date-chip"
+                aria-label={`${i18n.naturalLanguageDates.detectedLabel} ${match.text}`}
+              >
+                <span className="nlp-date-text">{match.text}</span>
+                <span
+                  className="nlp-date-result"
+                  aria-label={`${i18n.naturalLanguageDates.resultLabel} ${formatRecognizedDate(
+                    match.date,
+                    match.hasTime,
+                  )}`}
+                >
+                  {formatRecognizedDate(match.date, match.hasTime)}
+                </span>
+                <Button
+                  className="nlp-date-remove"
+                  onPress={() => {
+                    setContent((prev) => removeRecognizedRange(prev, match.index, match.end));
+                  }}
+                  aria-label={i18n.naturalLanguageDates.removeLabel}
+                >
+                  {i18n.naturalLanguageDates.removeLabel}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <TaskContentInput
         className="task-description"
         placeholder={i18n.descriptionPlaceholder}
@@ -310,7 +382,13 @@ const CreateTaskModalContent: React.FC<CreateTaskProps> = ({
       />
       <div className="task-creation-selectors">
         <div className="task-creation-selectors-group">
-          <DueDateSelector selected={dueDate} setSelected={setDueDate} />
+          <DueDateSelector
+            selected={dueDate}
+            setSelected={(next) => {
+              setDueDate(next);
+              setDueDateSource("manual");
+            }}
+          />
           <PrioritySelector selected={priority} setSelected={setPriority} />
           <LabelSelector selected={labels} setSelected={setLabels} />
           {isPremium && <DeadlineSelector selected={deadline} setSelected={setDeadline} />}
@@ -389,4 +467,60 @@ const getInboxProject = (plugin: TodoistPlugin): ProjectIdentifier => {
 
   new Notice(i18n.failedToFindInboxNotice);
   throw new Error("Could not find inbox project");
+};
+
+const toDueDate = (match: RecognizedDate): DueDate | undefined => {
+  const zoned = fromDate(match.date, timezone());
+  const date = new CalendarDate(zoned.year, zoned.month, zoned.day);
+
+  if (!match.hasTime) {
+    return {
+      date,
+      timeInfo: undefined,
+    };
+  }
+
+  return {
+    date,
+    timeInfo: {
+      time: new Time(zoned.hour, zoned.minute, zoned.second),
+      duration: undefined,
+    },
+  };
+};
+
+const formatRecognizedDate = (date: Date, hasTime: boolean): string => {
+  if (hasTime) {
+    return date.toLocaleString();
+  }
+
+  return date.toLocaleDateString();
+};
+
+const removeRecognizedRange = (value: string, start: number, end: number): string => {
+  if (start < 0 || end <= start || start >= value.length) {
+    return value;
+  }
+
+  const before = value.slice(0, start);
+  const after = value.slice(end);
+  const combined = `${before}${after}`;
+  return combined.replace(/\s{2,}/g, " ").trim();
+};
+
+const stripLeadingRecognizedDate = (
+  value: string,
+  matches: RecognizedDate[],
+): string => {
+  if (matches.length === 0) {
+    return value;
+  }
+
+  const [first] = matches;
+  const leading = value.slice(0, first.index);
+  if (leading.trim().length !== 0) {
+    return value;
+  }
+
+  return removeRecognizedRange(value, first.index, first.end);
 };

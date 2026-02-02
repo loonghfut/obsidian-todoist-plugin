@@ -75,6 +75,10 @@ export const zhCn: DeepPartial<Translations> = {
           none: "不设置",
         },
       },
+      autoApplyRecognizedDates: {
+        label: "自动应用识别日期",
+        description: "启用后，任务名称中的自然语言日期会自动应用为截止日期",
+      },
       defaultProject: {
         label: "默认项目",
         description: "创建新任务时默认设置的项目",
@@ -105,6 +109,22 @@ export const zhCn: DeepPartial<Translations> = {
         label: "完成任务后自动插入",
         description: "启用后，完成任务时会使用模板追加到当前文件",
       },
+      appendCompletedTasksTemplate: {
+        label: "完成任务追加模板",
+        description:
+          "完成任务追加时使用的模板。支持 {{task}}、{{content}}、{{description}}、{{project}}、{{section}}、{{labels}}、{{priority}}、{{due}}、{{deadline}}、{{date}}、{{time}}、{{datetime}} 或 {{date:YYYY-MM-DD}}。",
+        placeholder: "{{date:YYYY-MM-DD}} {{task}}",
+      },
+      appendCompletedTasksToDailyNote: {
+        label: "完成任务追加到日记",
+        description: "启用后，完成任务将使用完成模板追加到当天日记末尾",
+      },
+      dailyNotePathTemplate: {
+        label: "日记路径模板",
+        description:
+          "可选：自定义日记文件路径。可使用 {{date:YYYY-MM-DD}} 等格式化占位符。例如：Daily/{{date:YYYY-MM-DD}}.md",
+        placeholder: "Daily/{{date:YYYY-MM-DD}}.md",
+      },
     },
     advanced: {
       header: "高级",
@@ -127,6 +147,12 @@ export const zhCn: DeepPartial<Translations> = {
     errorNotice: "任务创建失败",
     taskNamePlaceholder: "任务名称",
     descriptionPlaceholder: "描述",
+    naturalLanguageDates: {
+      header: "识别到日期",
+      detectedLabel: "识别文本",
+      resultLabel: "识别结果",
+      removeLabel: "删除",
+    },
     appendedLinkToContentMessage: "将把当前页面链接追加到任务名称",
     appendedLinkToDescriptionMessage: "将把当前页面链接追加到任务描述",
     cancelButtonLabel: "取消",

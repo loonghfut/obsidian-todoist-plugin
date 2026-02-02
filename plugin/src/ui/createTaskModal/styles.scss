@@ -30,6 +30,58 @@
     font-size: var(--font-ui-small);
   }
 
+  .nlp-date-detections {
+    margin-top: 0.5em;
+    margin-bottom: 0.25em;
+
+    .nlp-date-header {
+      font-size: var(--font-smaller);
+      color: var(--text-muted);
+      margin-bottom: 0.25em;
+    }
+
+    .nlp-date-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+
+    .nlp-date-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background-color: var(--background-modifier-hover);
+      border: 1px solid var(--background-modifier-border);
+      font-size: var(--font-smallest);
+    }
+
+    .nlp-date-text {
+      font-weight: var(--font-semibold);
+      color: var(--text-normal);
+      background: var(--background-modifier-active-hover);
+      padding: 1px 4px;
+      border-radius: 4px;
+    }
+
+    .nlp-date-result {
+      color: var(--text-muted);
+    }
+
+    .nlp-date-remove {
+      border: 0;
+      background: transparent;
+      color: var(--text-accent);
+      padding: 0 2px;
+      font-size: var(--font-smallest);
+      cursor: pointer;
+    }
+  }
+
   .task-creation-selectors {
     margin-top: 0.5em;
     display: flex;

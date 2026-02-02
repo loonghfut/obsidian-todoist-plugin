@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      chrono-node:
+        specifier: ^2.9.0
+        version: 2.9.0
     devDependencies:
       '@biomejs/biome':
         specifier: 2.3.8
@@ -425,6 +429,10 @@ packages:
     resolution: {integrity: sha512-bMGqUBvyazwCC6Ycst2JbtP/JOcR4ifYtP8tBnq0G92iooNp47/0aMziQQT6voF1tEYntpMC+TWenLz3pdhwpQ==}
     hasBin: true
 
+  chrono-node@2.9.0:
+    resolution: {integrity: sha512-glI4YY2Jy6JII5l3d5FN6rcrIbKSQqKPhWsIRYPK2IK8Mm4Q1ZZFdYIaDqglUNf7gNwG+kWIzTn0omzzE0VkvQ==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+
   debug@4.4.3:
     resolution: {integrity: sha512-RGwwWnwQvkVfavKVt22FGLw+xYSdzARwm0ru6DhTVA3umU5hZc28V3kO4stgYryrTlLpuvgI9GiijltAjNbcqA==}
     engines: {node: '>=6.0'}
@@ -780,6 +788,8 @@ snapshots:
       '@typescript/native-preview-linux-x64': 7.0.0-dev.20260131.1
       '@typescript/native-preview-win32-arm64': 7.0.0-dev.20260131.1
       '@typescript/native-preview-win32-x64': 7.0.0-dev.20260131.1
+
+  chrono-node@2.9.0: {}
 
   debug@4.4.3:
     dependencies:

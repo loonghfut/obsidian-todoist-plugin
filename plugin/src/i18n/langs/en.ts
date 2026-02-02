@@ -87,6 +87,11 @@ export const en: Translations = {
           none: "No default",
         },
       },
+      autoApplyRecognizedDates: {
+        label: "Auto-apply recognized dates",
+        description:
+          "When enabled, recognized natural language dates in the task title will be applied to the due date",
+      },
       defaultProject: {
         label: "Default project",
         description: "The default project to set when creating new tasks",
@@ -118,6 +123,23 @@ export const en: Translations = {
         description:
           "When enabled, completed tasks will be appended to the current file using the task template",
       },
+      appendCompletedTasksTemplate: {
+        label: "Completed task append template",
+        description:
+          "Template used when appending completed tasks. Use {{task}}, {{content}}, {{description}}, {{project}}, {{section}}, {{labels}}, {{priority}}, {{due}}, {{deadline}}, {{date}}, {{time}}, {{datetime}} or {{date:YYYY-MM-DD}}.",
+        placeholder: "{{date:YYYY-MM-DD}} {{task}}",
+      },
+      appendCompletedTasksToDailyNote: {
+        label: "Append completed task to daily note",
+        description:
+          "When enabled, completed tasks will be appended to today's daily note using the completed task template",
+      },
+      dailyNotePathTemplate: {
+        label: "Daily note path template",
+        description:
+          "Optional override for the daily note path. Use {{date:YYYY-MM-DD}} (and similar) to format the filename. Example: Daily/{{date:YYYY-MM-DD}}.md",
+        placeholder: "Daily/{{date:YYYY-MM-DD}}.md",
+      },
     },
     advanced: {
       header: "Advanced",
@@ -140,6 +162,12 @@ export const en: Translations = {
     errorNotice: "Failed to create task",
     taskNamePlaceholder: "Task name",
     descriptionPlaceholder: "Description",
+    naturalLanguageDates: {
+      header: "Detected dates",
+      detectedLabel: "Detected text",
+      resultLabel: "Parsed result",
+      removeLabel: "Remove",
+    },
     appendedLinkToContentMessage: "A link to this page will be appended to the task name",
     appendedLinkToDescriptionMessage:
       "A link to this page will be appended to the task description",

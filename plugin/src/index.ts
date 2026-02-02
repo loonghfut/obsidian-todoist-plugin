@@ -37,6 +37,7 @@ export default class TodoistPlugin extends Plugin {
 
     await this.loadOptions();
 
+
     this.app.workspace.onLayoutReady(async () => {
       try {
         await this.applyMigrations();

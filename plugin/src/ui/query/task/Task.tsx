@@ -10,7 +10,7 @@ import { useSettingsStore } from "@/settings";
 import { Markdown } from "@/ui/components/markdown";
 import { PluginContext, QueryContext, RenderChildContext } from "@/ui/context";
 import { showTaskContext } from "@/ui/query/task/contextMenu";
-import { appendTaskToFile } from "@/ui/query/task/append";
+import { appendTaskToDailyNote, appendTaskToFile } from "@/ui/query/task/append";
 import { TaskList } from "@/ui/query/task/TaskList";
 import { TaskMetadata } from "@/ui/query/task/TaskMetadata";
 
@@ -41,14 +41,23 @@ export const Task: React.FC<Props> = ({ tree }) => {
   const onClickTask = async () => {
     try {
       await plugin.services.todoist.actions.closeTask(tree.id);
+      const template = settings.appendCompletedTasksTemplate?.trim().length
+        ? settings.appendCompletedTasksTemplate
+        : "{{task}}";
+
       if (settings.appendCompletedTasksOnClose) {
-        const template = settings.appendRenderedTasksTemplate?.trim().length
-          ? settings.appendRenderedTasksTemplate
-          : "{{task}}";
         try {
           await appendTaskToFile(plugin, renderChild, tree, template);
         } catch (error: unknown) {
           console.error("Failed to append completed task", error);
+        }
+      }
+
+      if (settings.appendCompletedTasksToDailyNote) {
+        try {
+          await appendTaskToDailyNote(plugin, tree, template);
+        } catch (error: unknown) {
+          console.error("Failed to append completed task to daily note", error);
         }
       }
     } catch (error: unknown) {

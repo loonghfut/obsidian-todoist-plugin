@@ -245,6 +245,12 @@ const SettingsRoot: React.FC<Props> = ({ plugin }) => {
         />
       </Setting.Root>
       <Setting.Root
+        name={i18n.taskCreation.autoApplyRecognizedDates.label}
+        description={i18n.taskCreation.autoApplyRecognizedDates.description}
+      >
+        <Setting.ToggleControl {...toggleProps("autoApplyRecognizedDates")} />
+      </Setting.Root>
+      <Setting.Root
         name={i18n.taskCreation.defaultProject.label}
         description={i18n.taskCreation.defaultProject.description}
       >
@@ -294,6 +300,33 @@ const SettingsRoot: React.FC<Props> = ({ plugin }) => {
         description={i18n.taskCreation.appendCompletedTasksOnClose.description}
       >
         <Setting.ToggleControl {...toggleProps("appendCompletedTasksOnClose")} />
+      </Setting.Root>
+      <Setting.Root
+        name={i18n.taskCreation.appendCompletedTasksTemplate.label}
+        description={i18n.taskCreation.appendCompletedTasksTemplate.description}
+      >
+        <Setting.TextAreaControl
+          value={settings.appendCompletedTasksTemplate}
+          placeholder={i18n.taskCreation.appendCompletedTasksTemplate.placeholder}
+          onChange={mkOptionUpdate("appendCompletedTasksTemplate")}
+        />
+      </Setting.Root>
+      <Setting.Root
+        name={i18n.taskCreation.appendCompletedTasksToDailyNote.label}
+        description={i18n.taskCreation.appendCompletedTasksToDailyNote.description}
+      >
+        <Setting.ToggleControl {...toggleProps("appendCompletedTasksToDailyNote")} />
+      </Setting.Root>
+      <Setting.Root
+        name={i18n.taskCreation.dailyNotePathTemplate.label}
+        description={i18n.taskCreation.dailyNotePathTemplate.description}
+      >
+        <Setting.TextAreaControl
+          value={settings.dailyNotePathTemplate}
+          placeholder={i18n.taskCreation.dailyNotePathTemplate.placeholder}
+          rows={1}
+          onChange={mkOptionUpdate("dailyNotePathTemplate")}
+        />
       </Setting.Root>
 
       <h2>{i18n.advanced.header}</h2>

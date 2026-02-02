@@ -82,6 +82,10 @@ export type Translations = {
           none: string;
         };
       };
+      autoApplyRecognizedDates: {
+        label: string;
+        description: string;
+      };
       defaultProject: {
         label: string;
         description: string;
@@ -112,6 +116,20 @@ export type Translations = {
         label: string;
         description: string;
       };
+      appendCompletedTasksTemplate: {
+        label: string;
+        description: string;
+        placeholder: string;
+      };
+      appendCompletedTasksToDailyNote: {
+        label: string;
+        description: string;
+      };
+      dailyNotePathTemplate: {
+        label: string;
+        description: string;
+        placeholder: string;
+      };
     };
     advanced: {
       header: string;
@@ -134,6 +152,12 @@ export type Translations = {
     errorNotice: string;
     taskNamePlaceholder: string;
     descriptionPlaceholder: string;
+    naturalLanguageDates: {
+      header: string;
+      detectedLabel: string;
+      resultLabel: string;
+      removeLabel: string;
+    };
     appendedLinkToContentMessage: string;
     appendedLinkToDescriptionMessage: string;
     cancelButtonLabel: string;

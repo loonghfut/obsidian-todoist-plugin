@@ -70,10 +70,21 @@ export const nl: DeepPartial<Translations> = {
           content: "Taaknaam",
         },
       },
+      autoApplyRecognizedDates: {
+        label: "Herkennde datums automatisch toepassen",
+        description:
+          "Wanneer ingeschakeld, worden herkende datums in de taaknaam automatisch toegepast als vervaldatum",
+      },
       appendCompletedTasksOnClose: {
         label: "Voltooide taak toevoegen",
         description:
           "Wanneer ingeschakeld, worden voltooide taken toegevoegd aan het huidige bestand met het taaksjabloon",
+      },
+      dailyNotePathTemplate: {
+        label: "Dagelijkse notitiepad-sjabloon",
+        description:
+          "Optioneel: overschrijf het pad van de dagelijkse notitie. Gebruik {{date:YYYY-MM-DD}} om de bestandsnaam te formatteren. Voorbeeld: Daily/{{date:YYYY-MM-DD}}.md",
+        placeholder: "Daily/{{date:YYYY-MM-DD}}.md",
       },
     },
     advanced: {
@@ -94,6 +105,12 @@ export const nl: DeepPartial<Translations> = {
     errorNotice: "Kan taak niet aanmaken",
     taskNamePlaceholder: "Taaknaam",
     descriptionPlaceholder: "Beschrijving",
+    naturalLanguageDates: {
+      header: "Gevonden datums",
+      detectedLabel: "Herkende tekst",
+      resultLabel: "Resultaat",
+      removeLabel: "Verwijderen",
+    },
     appendedLinkToContentMessage: "Een link naar deze pagina wordt toegevoegd aan de taaknaam",
     appendedLinkToDescriptionMessage:
       "Een link naar deze pagina wordt toegevoegd aan de taakbeschrijving",
