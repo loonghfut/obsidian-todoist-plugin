@@ -17,7 +17,7 @@ import { ModalContext, PluginContext } from "@/ui/context";
 
 import type TodoistPlugin from "../..";
 import type { Label as TodoistLabel } from "../../api/domain/label";
-import type { CreateTaskParams, Priority } from "../../api/domain/task";
+import type { CreateTaskParams, Priority, Task as ApiTask } from "../../api/domain/task";
 import { ObsidianIcon } from "../components/obsidian-icon";
 import { type Deadline, DeadlineSelector } from "./DeadlineSelector";
 import { type DueDate, DueDateSelector } from "./DueDateSelector";
@@ -31,6 +31,11 @@ import { buildClipboardMarkdown, buildTaskContent, type FileInfo } from "./taskC
 import "./styles.scss";
 
 import type { Translations } from "@/i18n/translation";
+import type { Label as TodoistLabelInfo } from "@/api/domain/label";
+import type { Project as TodoistProject } from "@/api/domain/project";
+import type { Section as TodoistSection } from "@/api/domain/section";
+import type { TaskTree } from "@/data/transformations/relationships";
+import { applyTaskTemplate } from "@/ui/query/task/template";
 import { OptionsSelector } from "@/ui/createTaskModal/OptionsSelector";
 
 const toFileInfo = (file: TFile | undefined): FileInfo | undefined => {
@@ -282,6 +287,12 @@ const CreateTaskModalContent: React.FC<CreateTaskProps> = ({
 
       const task = await plugin.services.todoist.actions.createTask(taskContent, params);
 
+      if (fileContext) {
+        await appendTaskToCurrentFile(plugin, fileContext, task, settings);
+      }
+
+      void refreshAfterCreate(plugin);
+
       if (action === "add-copy-app" || action === "add-copy-web") {
         const taskRef = {
           id: task.id,
@@ -467,6 +478,98 @@ const getInboxProject = (plugin: TodoistPlugin): ProjectIdentifier => {
 
   new Notice(i18n.failedToFindInboxNotice);
   throw new Error("Could not find inbox project");
+};
+
+const refreshAfterCreate = async (plugin: TodoistPlugin): Promise<void> => {
+  await delay(1000);
+  await plugin.services.todoist.sync();
+};
+
+const delay = (ms: number): Promise<void> =>
+  new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+
+const appendTaskToCurrentFile = async (
+  plugin: TodoistPlugin,
+  file: TFile,
+  task: ApiTask,
+  settings: Settings,
+): Promise<void> => {
+  const template = settings.appendRenderedTasksTemplate?.trim().length
+    ? settings.appendRenderedTasksTemplate
+    : "{{task}}";
+  const taskTree = hydrateCreatedTask(plugin, task);
+  const rendered = applyTaskTemplate(template, taskTree, new Date());
+  if (rendered.trim().length === 0) {
+    return;
+  }
+
+  const markdownWithNewline = rendered.endsWith("\n") ? rendered : `${rendered}\n`;
+  const existing = await plugin.app.vault.read(file);
+  const separator = existing.endsWith("\n") ? "" : "\n";
+  await plugin.app.vault.modify(file, `${existing}${separator}${markdownWithNewline}`);
+};
+
+const hydrateCreatedTask = (plugin: TodoistPlugin, task: ApiTask): TaskTree => {
+  const data = plugin.services.todoist.data();
+  const project = data.projects.byId(task.projectId) ?? makeUnknownProject(task.projectId);
+  const section = task.sectionId
+    ? data.sections.byId(task.sectionId) ?? makeUnknownSection(task.sectionId)
+    : undefined;
+  const labels = task.labels.map(
+    (name) => data.labels.byName(name) ?? makeUnknownLabel(name),
+  );
+
+  return {
+    id: task.id,
+    createdAt: task.addedAt,
+    content: task.content,
+    description: task.description,
+    project,
+    section,
+    parentId: task.parentId ?? undefined,
+    labels,
+    priority: task.priority,
+    due: task.due ?? undefined,
+    duration: task.duration ?? undefined,
+    deadline: task.deadline ?? undefined,
+    order: task.childOrder,
+    children: [],
+  };
+};
+
+const makeUnknownProject = (id: string): TodoistProject => {
+  return {
+    id,
+    parentId: null,
+    name: "Unknown Project",
+    childOrder: Number.MAX_SAFE_INTEGER,
+    inboxProject: false,
+    color: "grey",
+    isDeleted: false,
+    isArchived: false,
+  };
+};
+
+const makeUnknownSection = (id: string): TodoistSection => {
+  return {
+    id,
+    projectId: "unknown-project",
+    name: "Unknown Section",
+    sectionOrder: Number.MAX_SAFE_INTEGER,
+    isDeleted: false,
+    isArchived: false,
+  };
+};
+
+const makeUnknownLabel = (name: string): TodoistLabelInfo => {
+  return {
+    id: "unknown-label",
+    name,
+    color: "grey",
+    isDeleted: false,
+  };
 };
 
 const toDueDate = (match: RecognizedDate): DueDate | undefined => {
